@@ -4077,62 +4077,71 @@ function utils.invertFloorplan(model, floorplan, withoutQP, relaxedQP, useStack)
    local representation = {}
    py.execute('import os')
 
-   if withoutQP then
-      py.execute('os.system("python PostProcessing/QP.py 1")')
-      representation.points = utils.loadItems('test/points_out.txt')
-      representation.doors = utils.loadItems('test/doors_out.txt')
-      representation.icons = utils.loadItems('test/icons_out.txt')
-      representation.walls = utils.pointsToLines(oriWidth, oriHeight, representation.points, lineWidth, true)
+--
+--    if withoutQP then
+--       py.execute('os.system("python PostProcessing/QP.py 1")')
+--       representation.points = utils.loadItems('test/points_out.txt')
+--       representation.doors = utils.loadItems('test/doors_out.txt')
+--       representation.icons = utils.loadItems('test/icons_out.txt')
+--       representation.walls = utils.pointsToLines(oriWidth, oriHeight, representation.points, lineWidth, true)
 
-      local wallMask = utils.drawLineMask(oriWidth, oriHeight, representation.walls, lineWidth)
-      --image.save('test/floorplan.png', floorplan)
-      --image.save('test/wall_mask.png', wallMask)
-      local rooms, numRooms = utils.findConnectedComponents(1 - wallMask)
+--       local wallMask = utils.drawLineMask(oriWidth, oriHeight, representation.walls, lineWidth)
+--       --image.save('test/floorplan.png', floorplan)
+--       --image.save('test/wall_mask.png', wallMask)
+--       local rooms, numRooms = utils.findConnectedComponents(1 - wallMask)
 
-      local backgroundRoomIndex
-      local imageCorners = {{1, 1}, {oriWidth, 1}, {oriWidth, oriHeight}, {1, oriHeight}}
-      for _, imageCorner in pairs(imageCorners) do
-         local roomIndex = rooms[imageCorner[2]][imageCorner[1]]
-         if roomIndex > 0 then
-            if not backgroundRoomIndex then
-               backgroundRoomIndex = roomIndex
-            elseif roomIndex ~= backgroundRoomIndex then
-               rooms[rooms:eq(roomIndex)] = backgroundRoomIndex
-            end
-         end
-      end
-      if not backgroundRoomIndex then
-         backgroundRoomIndex = numRooms
-      end
-      representation.labels = {}
+--       local backgroundRoomIndex
+--       local imageCorners = {{1, 1}, {oriWidth, 1}, {oriWidth, oriHeight}, {1, oriHeight}}
+--       for _, imageCorner in pairs(imageCorners) do
+--          local roomIndex = rooms[imageCorner[2]][imageCorner[1]]
+--          if roomIndex > 0 then
+--             if not backgroundRoomIndex then
+--                backgroundRoomIndex = roomIndex
+--             elseif roomIndex ~= backgroundRoomIndex then
+--                rooms[rooms:eq(roomIndex)] = backgroundRoomIndex
+--             end
+--          end
+--       end
+--       if not backgroundRoomIndex then
+--          backgroundRoomIndex = numRooms
+--       end
+--       representation.labels = {}
 
-      for roomIndex = 1, numRooms - 1 do
-         if roomIndex ~= backgroundRoomIndex then
-            local roomMask = rooms:eq(roomIndex)
-            if ##roomMask:nonzero() > 0 then
-               local means = roomMask:nonzero():double():mean(1)[1]
-               local y = means[1]
-               local x = means[2]
-               local maxSum
-               local maxSumSegmentIndex
-               for segmentIndex = 1, 10 do
-                  local sum = segmentations[segmentIndex][roomMask]:sum()
-                  if not maxSum or sum > maxSum then
-                     maxSum = sum
-                     maxSumSegmentIndex = segmentIndex
-                  end
-               end
-               if maxSumSegmentIndex then
-                  table.insert(representation.labels, {{x - 20, y - 10}, {x + 20, y + 10}, utils.getItemInfo('labels', maxSumSegmentIndex)})
-               end
-            end
-         end
-      end
-      return representation
-   end
+--       for roomIndex = 1, numRooms - 1 do
+--          if roomIndex ~= backgroundRoomIndex then
+--             local roomMask = rooms:eq(roomIndex)
+--             if ##roomMask:nonzero() > 0 then
+--                local means = roomMask:nonzero():double():mean(1)[1]
+--                local y = means[1]
+--                local x = means[2]
+--                local maxSum
+--                local maxSumSegmentIndex
+--                for segmentIndex = 1, 10 do
+--                   local sum = segmentations[segmentIndex][roomMask]:sum()
+--                   if not maxSum or sum > maxSum then
+--                      maxSum = sum
+--                      maxSumSegmentIndex = segmentIndex
+--                   end
+--                end
+--                if maxSumSegmentIndex then
+--                   table.insert(representation.labels, {{x - 20, y - 10}, {x + 20, y + 10}, utils.getItemInfo('labels', maxSumSegmentIndex)})
+--                end
+--             end
+--          end
+--       end
+--       print('representation:')
+--       print(representation)
+--       return representation
+--    end
+-- 
 
+-- 
+-- 
    py.execute('os.system("python PostProcessing/QP.py")')
 
+   os.exit(1)
+-- 
+-- 
 
    --os.exit(1)
    local points = utils.loadItems('test/points_out.txt')

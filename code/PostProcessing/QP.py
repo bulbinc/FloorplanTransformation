@@ -1,4 +1,4 @@
-from gurobipy import *
+#from gurobipy import *
 import cv2
 import numpy as np
 import sys
@@ -7,10 +7,11 @@ import copy
 
 if len(sys.argv) == 2 and int(sys.argv[1]) == 1:
   withoutQP = True
+  print('\nwithoutQP: ' + str(withoutQP) + '\n')
 else:
   withoutQP = False
+  print('\nwithoutQP: ' + str(withoutQP) + '\n')
   pass
-
 
 gap = 10
 
@@ -1258,6 +1259,76 @@ def augmentPoints(points):
 
 
 
+"""
+bulb function
+"""
+def Lines2txt(filename, width, height, points, lines, lineLabel = 'label', backgroundImage = None, lineWidth = 5, lineColor = 255):
+  if backgroundImage is None:
+    image = np.ones((height, width, 3), np.uint8) * 0
+  else:
+    image = backgroundImage
+    pass
+
+  f = open(filename, 'w')
+
+  for lineIndex, line in enumerate(lines):
+    point_1 = points[line[0]]
+    point_2 = points[line[1]]
+    lineDim = calcLineDim(points, line)
+
+
+    fixedValue = int(round((point_1[1 - lineDim] + point_2[1 - lineDim]) / 2))
+    minValue = int(round(min(point_1[lineDim], point_2[lineDim])))
+    maxValue = int(round(max(point_1[lineDim], point_2[lineDim])))
+
+    ###
+    # print('point_1: ' + str(point_1) + '\n')
+    # print('point_2: ' + str(point_2) + '\n')
+    point_1 = [int(i) for i in point_1]
+    point_2 = [int(i) for i in point_2]
+    # print('point_1: ' + str(point_1[:2]) + '\n')
+    # print('point_2: ' + str(point_2[:2]) + '\n')
+
+    # print(str(point_1[0]) + ' ' + str(point_1[1]) + ' ' + str(point_2[0]) + ' ' + str(point_2[1]) + ' ' + lineLabel + ' 1 1\n')
+    f.writelines(str(point_1[0]) + ' ' + str(point_1[1]) + ' ' + str(point_2[0]) + ' ' + str(point_2[1]) + ' ' + lineLabel + ' 1 1\n')
+    # cv2.line(image, tuple(point_1[:2]), tuple(point_2[:2]), color=lineColor, thickness=lineWidth)
+    ###
+
+    # if len(lineLabels) == 0:
+    #   lineColor = np.random.rand(3) * 255
+    #   if lineDim == 0:
+    #     image[max(fixedValue - lineWidth, 0):min(fixedValue + lineWidth, height), minValue:maxValue + 1, :] = lineColor
+    #   else:
+    #     image[minValue:maxValue + 1, max(fixedValue - lineWidth, 0):min(fixedValue + lineWidth, width), :] = lineColor
+    # else:
+    #   labels = lineLabels[lineIndex]
+    #   isExterior = False
+    #   if lineDim == 0:
+    #     for c in xrange(3):
+    #       image[max(fixedValue - lineWidth, 0):min(fixedValue, height), minValue:maxValue, c] = colorMap[labels[0]][c]
+    #       image[max(fixedValue, 0):min(fixedValue + lineWidth, height), minValue:maxValue, c] = colorMap[labels[1]][c]
+    #       continue
+    #   else:
+    #     for c in xrange(3):
+    #       image[minValue:maxValue, max(fixedValue - lineWidth, 0):min(fixedValue, width), c] = colorMap[labels[1]][c]
+    #       image[minValue:maxValue, max(fixedValue, 0):min(fixedValue + lineWidth, width), c] = colorMap[labels[0]][c]
+    #       continue
+    #     pass
+    #   pass
+    # continue
+
+
+  # if filename == '':
+  #   return image
+  # else:
+  #   cv2.imwrite(filename, image)
+
+"""
+end bulb function
+"""
+
+
+
 wallPoints = []
 iconPoints = []
 doorPoints = []
@@ -1586,8 +1657,8 @@ if withoutQP:
   print('number of walls: ' + str(len(wallLines)))
   print('number of doors: ' + str(len(doorLines)))
   print('number of icons: ' + str(len(icons)))
-  exit(1)
 
+  exit(1)
 
 if False:
   #lines = [51]
@@ -1646,10 +1717,25 @@ if True:
   drawLines('test/lines.png', width, height, wallPoints, wallLines, [], None, 2)
   drawLines('test/doors.png', width, height, doorPoints, doorLines, [], None, 2)
   drawRectangles('test/icons.png', width, height, iconPoints, icons, {}, 2)
+  print('\ntest1\n')
   print('number of walls: ' + str(len(wallLines)))
   print('number of doors: ' + str(len(doorLines)))
   print('number of icons: ' + str(len(icons)))
-  #exit(1)
+
+  ### for bulb
+  # print('number of wallPoints: ' + str(wallPoints))
+  # print('number of wallLines: ' + str(wallLines))
+  Lines2txt('test/bulb_walls.txt', width, height, wallPoints, wallLines, 'wall', None, 2)
+  Lines2txt('test/bulb_doors.txt', width, height, doorPoints, doorLines, 'door', None, 2)
+  # Lines2txt('test/bulb_icons.txt', width, height, iconPoints, icons, 'icon', None, 2)
+  ###
+
+
+  floor_data_file = open('./floor_data.txt', 'w')
+  #floor_data_file.writelines(wallPoints)
+  #floor_data_file.writelines(wallLines)
+
+  exit(1)
   pass
 
 
@@ -1680,7 +1766,7 @@ if False:
   pass
 
 
-
+"""
 try:
   model = Model("JunctionFilter")
 
@@ -2298,8 +2384,9 @@ try:
     #model.ComputeIIS()
     #model.write("test/model.ilp")
 
-except GurobiError as e:
-  print('Error code ' + str(e.errno) + ": " + str(e))
+#except GurobiError as e:
+#  print('Error code ' + str(e.errno) + ": " + str(e))
 
 except AttributeError:
   print('Encountered an attribute error')
+"""
